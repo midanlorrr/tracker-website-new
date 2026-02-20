@@ -1,0 +1,53 @@
+<!DOCTYPE html> <!-- specifies html5 (backwards compatibility [bc]) -->
+
+<html lang="en"> <!-- same thing -->
+
+  <head> <!-- for unseen parts of the page -->
+    <meta charset="UTF-8"> <!-- specifies modern encoding standard [bc] -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- on mobile, does not treat as desktop page [bc] -->
+    <title>Time Tracker</title> <!-- webpage tab title -->
+    <link rel="stylesheet" href="styles.css">
+  </head>
+
+  <body> <!-- main part of the page -->
+
+    <div class="layout">
+
+      <aside class="sidebar"> <!-- navigation bar of page -->
+        <a>Assignments</a>
+        <a>Misc</a>
+      </aside>
+
+      <div class="content">
+        <header>
+          <h1>Assignment Tracker v2</h1>
+        </header>
+        
+        <main>
+          <div class="timer-grid">
+            <div class="timer-example"> <!-- will be replaced with js -->
+              <h2>Task 1</h2>
+              <div class="timebox">
+                <div class="time-segments">
+                  <h3 id="days">00</h3><p>Days</p>
+                </div>
+                <div class="time-segments">
+                  <h3 id="hours">00</h3><p>Hours</p>
+                </div>
+                <div class="time-segments">
+                  <h3 id="minutes">00</h3><p>Minutes</p>
+                </div>
+                <div class="time-segments">
+                  <h3 id="seconds">00</h3><p>Seconds</p>
+                </div>
+              </div>
+            </div> <!-- up until here -->
+          </div>
+        </main>
+      </div>
+
+    </div>
+    <script src="index.js"></script>
+  </body>
+
+</html>
