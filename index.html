@@ -24,7 +24,7 @@
         </header>
         
         <main>
-          <div class="timer-grid">
+          <div class="timer-grid" id="js-timer-grid">
             <div class="timer-example"> <!-- will be replaced with js -->
               <h2>Task 1</h2>
               <div class="timebox">
@@ -40,8 +40,10 @@
                 <div class="time-segments">
                   <h3 id="seconds">00</h3><p>Seconds</p>
                 </div>
+                <input data-action="time-input" type="datetime-local" value="2026-02-21T00:00">
+                <button class="delete-button" data-action="delete">Delete</button>
               </div>
-            </div> <!-- up until here -->
+            </div>
           </div>
         </main>
       </div>
