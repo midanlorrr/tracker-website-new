@@ -12,14 +12,6 @@ let countdownObjectsArray = [
     }
 ]
 
-document.querySelector('[data-action="time-input"]').value = "2026-02-21T00:00"; // Default Date
-const timeInput = document.querySelector('[data-action="time-input"]'); // Grabs whatever the inputed time is
-
-document.addEventListener('change', ()=>{
-    console.log('Date Changed');
-    targetDate = new Date(timeInput.value).getTime();
-})
-
 function renderCountdowns() { // renders each countdown object
     let countdownGridHTML = ``;
     countdownObjectsArray.forEach((countdownObject)=>{
@@ -55,14 +47,14 @@ function extractTime(countdownObject) {
     if (countdownObject.dueDate === 0) {
         return;
     }
-    const targetDateMS = new Date(countdownObject.dueDate).getTime();
+    const {days, hours, minutes, seconds, dueDate} = countdownObject;
+    const targetDateMS = new Date(dueDate).getTime();
     const diffMs = targetDateMS - Date.now();
-    const {days, hours, minutes, seconds} = countdownObject;
     countdownObject.days = Math.floor(diffMs / 1000 / 60 / 60 / 24);
     countdownObject.hours = Math.floor(diffMs / 1000 / 60 / 60) % 24;
     countdownObject.minutes = Math.floor(diffMs / 1000 / 60) % 60;
     countdownObject.seconds = Math.floor(diffMs / 1000) % 60;
-    console.log(`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`);
+    //console.log(`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`);
 }
 
 function renderTimes() {
@@ -88,7 +80,6 @@ document.addEventListener('click', (e)=>{
 
     }
     if (e.target.matches('[data-action="add"]')) {
-        //console.log(crypto.randomUUID());
         countdownObjectsArray.push({
             title: `Task`, 
             dueDate: 0, 
@@ -101,4 +92,12 @@ document.addEventListener('click', (e)=>{
         console.log(countdownObjectsArray);
         renderCountdowns();
     }
+})
+
+document.addEventListener('change', (e)=>{
+    const id = e.target.closest('[data-id]').dataset.id;
+    const timeInput = e.target.closest('[data-action="time-input"]').value; // Grabs whatever the inputed time is
+    const countdownObject = countdownObjectsArray.find(item=>item.id===id);
+    countdownObject.dueDate = timeInput;
+    renderTimes();
 })
