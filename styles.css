@@ -38,12 +38,12 @@ main {
   padding: 10px;
 }
 
-.timer-grid {
+.countdown-grid {
   background-color: brown;
   padding: 10px;
 }
 
-.timer-example {
+.countdown-block {
   background-color: blanchedalmond;
   padding: 10px;
 }
