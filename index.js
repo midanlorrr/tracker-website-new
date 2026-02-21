@@ -4,37 +4,21 @@ let countdownObjectsArray = [
     {
         title: 'Task 1',
         dueDate: defaultDate,
-        id: 0,
+        id: '0',
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0
     }
 ]
 
-const Days = document.getElementById('days');
-const Hours = document.getElementById('hours');
-const Minutes = document.getElementById('minutes');
-const Seconds = document.getElementById('seconds');
-
 document.querySelector('[data-action="time-input"]').value = "2026-02-21T00:00"; // Default Date
 const timeInput = document.querySelector('[data-action="time-input"]'); // Grabs whatever the inputed time is
-let targetDate = new Date(timeInput.value).getTime(); // Turns that inputed time into the actual ms since 1970
 
 document.addEventListener('change', ()=>{
     console.log('Date Changed');
     targetDate = new Date(timeInput.value).getTime();
 })
-
-timer();
-
-function timer() {
-    const diffMs = targetDate - Date.now();
-    const days = Math.floor(diffMs / 1000 / 60 / 60 / 24);
-    const hours = Math.floor(diffMs / 1000 / 60 / 60) % 24;
-    const minutes = Math.floor(diffMs / 1000 / 60) % 60;
-    const seconds = Math.floor(diffMs / 1000) % 60;
-
-    //console.log(`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`);
-}
-
-//const intervalId = setInterval(timer, 1000); // heartbeat, checks every 1 second
 
 function renderCountdowns() { // renders each countdown object
     let countdownGridHTML = ``;
@@ -56,19 +40,47 @@ function renderCountdowns() { // renders each countdown object
                 <div class="time-segments">
                     <h3 id="seconds-${id}">00</h3><p>Seconds</p>
                 </div>
-                <input data-action="time-input" type="datetime-local" value="${dueDate}">
+                <input data-action="time-input" type="datetime-local" value='${dueDate || ''}'>
                 <button class="delete-button" data-action="delete">Delete</button>
             </div>
         </div>
         `;
     })
     document.getElementById('js-countdown-grid').innerHTML = countdownGridHTML;
+    renderTimes();
 }
 renderCountdowns();
 
+function extractTime(countdownObject) {
+    if (countdownObject.dueDate === 0) {
+        return;
+    }
+    const targetDateMS = new Date(countdownObject.dueDate).getTime();
+    const diffMs = targetDateMS - Date.now();
+    const {days, hours, minutes, seconds} = countdownObject;
+    countdownObject.days = Math.floor(diffMs / 1000 / 60 / 60 / 24);
+    countdownObject.hours = Math.floor(diffMs / 1000 / 60 / 60) % 24;
+    countdownObject.minutes = Math.floor(diffMs / 1000 / 60) % 60;
+    countdownObject.seconds = Math.floor(diffMs / 1000) % 60;
+    console.log(`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`);
+}
+
+function renderTimes() {
+    countdownObjectsArray.forEach((countdownObject)=>{
+        extractTime(countdownObject);
+        const {days, hours, minutes, seconds, id} = countdownObject;
+        document.getElementById(`days-${id}`).innerHTML = days;
+        document.getElementById(`hours-${id}`).innerHTML = hours;
+        document.getElementById(`minutes-${id}`).innerHTML = minutes;
+        document.getElementById(`seconds-${id}`).innerHTML = seconds;
+    })
+}
+
+setInterval(()=>renderTimes(), 1000); // heartbeat, checks every 1 second
+
 document.addEventListener('click', (e)=>{
     if (e.target.matches('[data-action="delete"]')) {
-        const deleteId = Number(e.target.closest('[data-id]').dataset.id);
+        const deleteId = e.target.closest('[data-id]').dataset.id;
         console.log(deleteId);
         countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== deleteId);
         console.log(countdownObjectsArray);
@@ -76,9 +88,16 @@ document.addEventListener('click', (e)=>{
 
     }
     if (e.target.matches('[data-action="add"]')) {
-        currentId = countdownObjectsArray.length - 1;
-        ++currentId;
-        countdownObjectsArray.push({title: `Task ${currentId+1}`, dueDate: defaultDate, id: currentId});
+        //console.log(crypto.randomUUID());
+        countdownObjectsArray.push({
+            title: `Task`, 
+            dueDate: 0, 
+            id: crypto.randomUUID(),
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0
+        });
         console.log(countdownObjectsArray);
         renderCountdowns();
     }
