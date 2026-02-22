@@ -30,9 +30,9 @@ h1 {
   display: flex;
   flex-direction: column;
   padding: 10px;
-  text-align: center;
   border-right: 2px solid var(--subtlegray);
   text-align: left;
+  align-items: center;
 }
 
 .dashboard {
@@ -63,7 +63,7 @@ h1 {
 
 .settings-icon {
   margin-top: auto;
-  margin-left: 15px;
+  /* margin-left: 15px; */
   cursor: pointer;
 }
 
@@ -171,18 +171,18 @@ input {
   border: none;
 }
 
-.add-button, .delete-button {
+.add-button, .delete-button, .export-button {
   color: var(--subtleblack);
   border: none;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
 
-.add-button:hover, .delete-button:hover {
+.add-button:hover, .delete-button:hover, .export-button:hover {
   transform: scale(1.08);
 }
 
-.add-button {
+.add-button, .export-button {
   background-color: lightgreen;
   margin-right: 10px;
   width: 80px;
@@ -200,6 +200,12 @@ input {
   font-weight: 600;
   border-radius: 8px;
   padding: 1px;
+}
+
+#export-box {
+  margin-top: 20px;
+  margin-left: 10px;
+  max-width: 500px;
 }
 
 @property --fill {

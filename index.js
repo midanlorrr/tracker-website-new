@@ -47,8 +47,31 @@ function renderCountdowns() { // renders each countdown object
     document.querySelector('.clock').getAnimations()[0].currentTime = currentMs;
     console.log('renderCountdowns called');
 }
-const saved = localStorage.getItem('countdownArray');
-if (saved) countdownObjectsArray = JSON.parse(saved);
+
+function loadData() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('countdownArray'));
+        console.log(saved);
+        if (Array.isArray(saved)) { countdownObjectsArray = saved; } else { throw ('ERROR: Invalid data format'); };
+
+    } catch (err) {
+        console.log(err);
+        countdownObjectsArray = [
+            {
+                title: 'Task 1',
+                dueDate: defaultDate,
+                id: '0',
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0
+            }
+        ];
+        saveData(countdownObjectsArray);
+    }
+}
+
+loadData();
 renderCountdowns();
 
 function extractTime(countdownObject) {
@@ -123,6 +146,10 @@ function cancelEdit(tempInput, oldText) {
     finishEdit(tempInput, oldText, id);
 }
 
+function saveData(arr) {
+    localStorage.setItem('countdownArray', JSON.stringify(arr));
+}
+
 document.addEventListener('click', (e)=>{
     if (e.target.matches('[data-action="delete"]')) {
         const deleteId = e.target.closest('[data-id]').dataset.id;
@@ -141,6 +168,21 @@ document.addEventListener('click', (e)=>{
         });
         renderCountdowns();
     }
+    // Temp fix ------------------------------------
+    if (e.target.matches('[data-action="export"]')) {
+        const exportBoxElement = document.getElementById('export-box');
+        const text = JSON.stringify(countdownObjectsArray, null, 2);
+        //exportBoxElement.style.display = 'block';
+        //exportBoxElement.innerHTML = text;
+
+        try {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard as a string.');
+        } catch {
+            alert('Shown below. Long-press the text box to copy.');
+        }
+    }
+    // Temp fix ------------------------------------
     if (e.target.matches('[data-action="edit-title"]')) {
         const id = e.target.closest('[data-id]').dataset.id;
         const titleElement = document.getElementById(`title-${id}`);
@@ -148,15 +190,29 @@ document.addEventListener('click', (e)=>{
         startEditTitle(titleElement);
     }
     //console.log(countdownObjectsArray);
-    localStorage.setItem('countdownArray', JSON.stringify(countdownObjectsArray));
+    saveData(countdownObjectsArray);
 })
 
 document.addEventListener('change', (e)=>{
-    const id = e.target.closest('[data-id]').dataset.id;
-    const timeElement = e.target.closest('[data-action="time-input"]'); // Grabs whatever the inputed time is
-    if (!timeElement) return;
+    if (e.target.matches('[data-action="time-input"]')) {
+        const id = e.target.closest('[data-id]').dataset.id;
+        const timeElement = e.target.closest('[data-action="time-input"]'); // Grabs whatever the inputed time is
+        if (!timeElement) return;
 
-    const countdownObject = countdownObjectsArray.find(item=>item.id===id);
-    countdownObject.dueDate = timeElement.value;
-    renderTimes();
+        const countdownObject = countdownObjectsArray.find(item=>item.id===id);
+        countdownObject.dueDate = timeElement.value;
+        renderTimes();
+    }
+    if (e.target.matches('[data-action="data-input"]')) {
+        const inputElement = e.target.closest('[data-action="data-input"]');
+        inputElement.select();
+        const parsed = JSON.parse(inputElement.value);
+        countdownObjectsArray = parsed;
+        saveData(countdownObjectsArray);
+        renderCountdowns();
+    }
 })
+
+document.addEventListener('focusin', (e) => {
+  if (e.target.matches('[data-action="data-input"]')) e.target.select();
+});

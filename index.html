@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- on mobile, does not treat as desktop page [bc] -->
     <title>Time Tracker</title> <!-- webpage tab title -->
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="assets/rebirth.png">
   </head>
 
   <body> <!-- main part of the page -->
@@ -19,7 +20,7 @@
           <a id="assignments" href="index.html">Assignments</a>
           <a id="misc">Misc</a>
         </div>
-        <img class="settings-icon" src="assets/settings-new.png" height="60" width="60">
+        <img class="settings-icon" src="assets/rebirth.png" height="40" width="40">
       </aside>
 
       <div class="content">
@@ -33,10 +34,13 @@
         <main>
           <div class="top-row">
             <button class="add-button" data-action="add">Add New</button>
+            <button class="export-button" data-action="export">Export</button>
+            <input data-action="data-input" type="text" value="Input data if needed">
           </div>
           <div class="countdown-grid" id="js-countdown-grid">
             <!-- countdowns go here -->
           </div>
+          <textarea id="export-box" readonly style="width:100%;height:180px;display:none;"></textarea>
         </main>
       </div>
 
