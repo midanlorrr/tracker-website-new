@@ -1,3 +1,10 @@
+:root {
+  --bg: rgb(250, 250, 250);
+  --subtlegray: rgb(238, 238, 238);
+  --lightergray: rgb(245, 245, 245);
+  --subtleblack: rgb(29, 29, 29);
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
@@ -6,7 +13,7 @@ body {
 
 h1, h2, h3 {
   margin: 0;
-  color: rgb(29, 29, 29);
+  color: var(--subtleblack);
 }
 
 h1 {
@@ -24,7 +31,7 @@ h1 {
   flex-direction: column;
   padding: 10px;
   text-align: center;
-  border-right: 2px solid rgb(238, 238, 238);
+  border-right: 2px solid var(--subtlegray);
   text-align: left;
 }
 
@@ -38,7 +45,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  color: rgb(43, 43, 43);
+  color: var(--subtleblack);
 }
 
 #assignments, #misc {
@@ -48,7 +55,7 @@ h1 {
 }
 
 #assignments:hover, #misc:hover {
-  background-color: rgb(248, 248, 248);
+  background-color: var(--lightergray);
   cursor: pointer;
   color: inherit;
   text-decoration: none;
@@ -74,11 +81,11 @@ header {
 
 header {
   padding: 20px;
-  border-bottom: 2px solid rgb(238, 238, 238);
+  border-bottom: 2px solid var(--subtlegray);
 }
 
 main {
-  background-color: rgb(250, 250, 250);
+  background-color: var(--bg);
   flex: 1;
   padding: 10px;
 }
@@ -103,13 +110,21 @@ main {
   padding: 10px;
   padding-bottom: 1px;
   padding-right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .countdown-block {
-  background-color: rgb(238, 238, 238);
+  background-color: var(--subtlegray);
   padding: 15px;
-  margin-bottom: 10px;
   border-radius: 10px;
+  max-width: 800px;
+  transition: transform 0.15s ease;
+}
+
+.countdown-block:hover {
+  transform: scale(1.005);
 }
 
 .time-content {
@@ -119,7 +134,7 @@ main {
 }
 
 .timebox {
-  background-color: rgb(245, 245, 245);
+  background-color: var(--lightergray);
   padding: 10px;
   display: flex;
   gap: 20px;
@@ -134,8 +149,22 @@ main {
   justify-content: space-between;
 }
 
+.title, .title input {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--subtleblack);
+  border: none;
+  outline: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.title input {
+  background-color: rgb(228, 228, 228);
+}
+
 input {
-  background-color: rgb(238, 238, 238);
+  background-color: var(--subtlegray);
   margin-bottom: 5px;
   font-size: 14px;
   font-weight: 500;
@@ -143,7 +172,7 @@ input {
 }
 
 .add-button, .delete-button {
-  color: rgb(39, 39, 39);
+  color: var(--subtleblack);
   border: none;
   cursor: pointer;
   transition: transform 0.15s ease;
@@ -201,8 +230,8 @@ input {
   align-items: center;
 }
 .clock-inner {
-  height: 45px;
-  width: 45px;
+  height: 40px;
+  width: 40px;
   border-radius: 50%;
   border: none;
   background: rgb(245, 245, 245);

@@ -31,7 +31,9 @@ function renderCountdowns() { // renders each countdown object
                     </div>
                 </div>
                 <div class="actionbox">
-                    <h2>${title}</h2>
+                    <div class="title">
+                        <span id="title-${id}" data-action="edit-title">${title}</span>
+                    </div>
                     <input data-action="time-input" type="datetime-local" value='${dueDate || ''}'>
                     <button class="delete-button" data-action="delete">Delete</button>
                 </div>
@@ -45,6 +47,8 @@ function renderCountdowns() { // renders each countdown object
     document.querySelector('.clock').getAnimations()[0].currentTime = currentMs;
     console.log('renderCountdowns called');
 }
+const saved = localStorage.getItem('countdownArray');
+if (saved) countdownObjectsArray = JSON.parse(saved);
 renderCountdowns();
 
 function extractTime(countdownObject) {
@@ -78,13 +82,52 @@ function renderTimes() { // renders just the time components
 
 setInterval(()=>renderTimes(), 1000); // heartbeat, checks every 1 second
 
+function startEditTitle(titleElement) {
+    const currentText = titleElement.textContent;
+    const tempInput = document.createElement('input');
+    tempInput.type = 'text';
+    tempInput.value = currentText
+    tempInput.id = titleElement.id;
+
+    titleElement.replaceWith(tempInput);
+    tempInput.focus();
+    //tempInput.select();
+
+    tempInput.addEventListener('keydown', (e)=>{
+        //if (e.key === 'Enter') finishEdit(tempInput, currentText);
+        if (e.key === 'Escape') cancelEdit(tempInput, currentText);
+    });
+    tempInput.addEventListener('blur', () => finishEdit(tempInput, currentText));
+}
+
+function finishEdit(tempInput, fallbackText) {
+    if (!tempInput.isConnected) return;
+    const newText = tempInput.value.trim() || 'unnamed';
+
+    const spanElement = document.createElement("span");
+    spanElement.textContent = newText;
+
+    spanElement.dataset.action = "edit-title";
+    spanElement.id = tempInput.id;
+
+    const id = spanElement.id.replace('title-', '');
+
+    tempInput.replaceWith(spanElement);
+
+    const countdownObject = countdownObjectsArray.find(item=>item.id===id);
+    countdownObject.title = newText;
+}
+
+function cancelEdit(tempInput, oldText) {
+    tempInput.value = oldText;
+    finishEdit(tempInput, oldText, id);
+}
+
 document.addEventListener('click', (e)=>{
     if (e.target.matches('[data-action="delete"]')) {
         const deleteId = e.target.closest('[data-id]').dataset.id;
         countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== deleteId);
-        //console.log(countdownObjectsArray);
         renderCountdowns();
-
     }
     if (e.target.matches('[data-action="add"]')) {
         countdownObjectsArray.push({
@@ -96,15 +139,24 @@ document.addEventListener('click', (e)=>{
             minutes: 0,
             seconds: 0
         });
-        //console.log(countdownObjectsArray);
         renderCountdowns();
     }
+    if (e.target.matches('[data-action="edit-title"]')) {
+        const id = e.target.closest('[data-id]').dataset.id;
+        const titleElement = document.getElementById(`title-${id}`);
+        console.log(id);
+        startEditTitle(titleElement);
+    }
+    //console.log(countdownObjectsArray);
+    localStorage.setItem('countdownArray', JSON.stringify(countdownObjectsArray));
 })
 
 document.addEventListener('change', (e)=>{
     const id = e.target.closest('[data-id]').dataset.id;
-    const timeInput = e.target.closest('[data-action="time-input"]').value; // Grabs whatever the inputed time is
+    const timeElement = e.target.closest('[data-action="time-input"]'); // Grabs whatever the inputed time is
+    if (!timeElement) return;
+
     const countdownObject = countdownObjectsArray.find(item=>item.id===id);
-    countdownObject.dueDate = timeInput;
+    countdownObject.dueDate = timeElement.value;
     renderTimes();
 })
