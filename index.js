@@ -1,4 +1,4 @@
-const defaultDate = "2026-02-24T00:00";
+const defaultDate = "2026-02-22T00:00";
 
 let countdownObjectsArray = [
     {
@@ -18,22 +18,26 @@ function renderCountdowns() { // renders each countdown object
         const {title, id, dueDate} = countdownObject;
         countdownGridHTML += `
         <div class="countdown-block" data-id="${id}">
-            <h2>${title}</h2>
-            <div class="timebox">
-                <div class="time-segments">
-                    <h3 id="days-${id}">00</h3><p>Days</p>
+            <div class="time-content">
+                <div class="timebox">
+                    <div class="time-segments">
+                        <h3 id="days-${id}">00</h3><p>Days</p>
+                    </div>
+                    <div class="time-segments">
+                        <h3 id="hours-${id}">00</h3><p>Hours</p>
+                    </div>
+                    <div class="time-segments">
+                        <h3 id="minutes-${id}">00</h3><p>Minutes</p>
+                    </div>
+                    <!--<div class="time-segments">
+                        <h3 id="seconds-${id}">00</h3><p>Seconds</p>
+                    </div>-->
                 </div>
-                <div class="time-segments">
-                    <h3 id="hours-${id}">00</h3><p>Hours</p>
+                <div class="actionbox">
+                    <h2>${title}</h2>
+                    <input data-action="time-input" type="datetime-local" value='${dueDate || ''}'>
+                    <button class="delete-button" data-action="delete">Delete</button>
                 </div>
-                <div class="time-segments">
-                    <h3 id="minutes-${id}">00</h3><p>Minutes</p>
-                </div>
-                <div class="time-segments">
-                    <h3 id="seconds-${id}">00</h3><p>Seconds</p>
-                </div>
-                <input data-action="time-input" type="datetime-local" value='${dueDate || ''}'>
-                <button class="delete-button" data-action="delete">Delete</button>
             </div>
         </div>
         `;
@@ -57,15 +61,16 @@ function extractTime(countdownObject) {
     //console.log(`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`);
 }
 
-function renderTimes() {
+function renderTimes() { // renders just the time components
     countdownObjectsArray.forEach((countdownObject)=>{
         extractTime(countdownObject);
         const {days, hours, minutes, seconds, id} = countdownObject;
         document.getElementById(`days-${id}`).innerHTML = days;
         document.getElementById(`hours-${id}`).innerHTML = hours;
         document.getElementById(`minutes-${id}`).innerHTML = minutes;
-        document.getElementById(`seconds-${id}`).innerHTML = seconds;
+        //document.getElementById(`seconds-${id}`).innerHTML = seconds;
     })
+    countdownObjectsArray[0]?.seconds != null ? document.getElementById(`seconds`).innerHTML = `Seconds: ${countdownObjectsArray[0].seconds}` : document.getElementById(`seconds`).innerHTML = '';
 }
 
 setInterval(()=>renderTimes(), 1000); // heartbeat, checks every 1 second
