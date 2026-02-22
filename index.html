@@ -14,19 +14,25 @@
     <div class="layout">
 
       <aside class="sidebar"> <!-- navigation bar of page -->
-        <a>Assignments</a>
-        <a>Misc</a>
+        <p class="dashboard">Dashboard</p>
+        <div class="navigation">
+          <a id="assignments" href="index.html">Assignments</a>
+          <a id="misc">Misc</a>
+        </div>
+        <img class="settings-icon" src="assets/settings-new.png" height="60" width="60">
       </aside>
 
       <div class="content">
         <header>
           <h1>Assignment Tracker v2</h1>
+          <div class="clock">
+            <div class="clock-inner"><div id="seconds"></div></div>
+          </div>
         </header>
         
         <main>
           <div class="top-row">
             <button class="add-button" data-action="add">Add New</button>
-            <div id="seconds"></div>
           </div>
           <div class="countdown-grid" id="js-countdown-grid">
             <!-- countdowns go here -->

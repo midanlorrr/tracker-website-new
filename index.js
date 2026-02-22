@@ -29,9 +29,6 @@ function renderCountdowns() { // renders each countdown object
                     <div class="time-segments">
                         <h3 id="minutes-${id}">00</h3><p>Minutes</p>
                     </div>
-                    <!--<div class="time-segments">
-                        <h3 id="seconds-${id}">00</h3><p>Seconds</p>
-                    </div>-->
                 </div>
                 <div class="actionbox">
                     <h2>${title}</h2>
@@ -44,6 +41,9 @@ function renderCountdowns() { // renders each countdown object
     })
     document.getElementById('js-countdown-grid').innerHTML = countdownGridHTML;
     renderTimes();
+    const currentMs = (new Date().getSeconds()) * 1000;
+    document.querySelector('.clock').getAnimations()[0].currentTime = currentMs;
+    console.log('renderCountdowns called');
 }
 renderCountdowns();
 
@@ -68,9 +68,12 @@ function renderTimes() { // renders just the time components
         document.getElementById(`days-${id}`).innerHTML = days;
         document.getElementById(`hours-${id}`).innerHTML = hours;
         document.getElementById(`minutes-${id}`).innerHTML = minutes;
-        //document.getElementById(`seconds-${id}`).innerHTML = seconds;
     })
-    countdownObjectsArray[0]?.seconds != null ? document.getElementById(`seconds`).innerHTML = `Seconds: ${countdownObjectsArray[0].seconds}` : document.getElementById(`seconds`).innerHTML = '';
+    countdownObjectsArray[0]?.seconds != null ? document.getElementById(`seconds`).innerHTML = `${countdownObjectsArray[0].seconds}` : document.getElementById(`seconds`).innerHTML = '';
+    const currentMs = (new Date().getSeconds()) * 1000;
+    if (currentMs == 0) {
+        document.querySelector('.clock').getAnimations()[0].currentTime = 0;
+    }
 }
 
 setInterval(()=>renderTimes(), 1000); // heartbeat, checks every 1 second
@@ -78,9 +81,8 @@ setInterval(()=>renderTimes(), 1000); // heartbeat, checks every 1 second
 document.addEventListener('click', (e)=>{
     if (e.target.matches('[data-action="delete"]')) {
         const deleteId = e.target.closest('[data-id]').dataset.id;
-        console.log(deleteId);
         countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== deleteId);
-        console.log(countdownObjectsArray);
+        //console.log(countdownObjectsArray);
         renderCountdowns();
 
     }
@@ -94,7 +96,7 @@ document.addEventListener('click', (e)=>{
             minutes: 0,
             seconds: 0
         });
-        console.log(countdownObjectsArray);
+        //console.log(countdownObjectsArray);
         renderCountdowns();
     }
 })

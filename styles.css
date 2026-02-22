@@ -9,6 +9,10 @@ h1, h2, h3 {
   color: rgb(29, 29, 29);
 }
 
+h1 {
+  margin-left: 10px;
+}
+
 .layout {
   display: flex;
   min-height: 100vh;
@@ -20,6 +24,46 @@ h1, h2, h3 {
   flex-direction: column;
   padding: 10px;
   text-align: center;
+  border-right: 2px solid rgb(238, 238, 238);
+  text-align: left;
+}
+
+.dashboard {
+  font-weight: 600;
+  color: rgb(65, 114, 204);
+}
+
+.navigation {
+  /* background-color: blue; */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: rgb(43, 43, 43);
+}
+
+#assignments, #misc {
+  padding: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+#assignments:hover, #misc:hover {
+  background-color: rgb(248, 248, 248);
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+.settings-icon {
+  margin-top: auto;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
 }
 
 .content {
@@ -29,8 +73,8 @@ h1, h2, h3 {
 }
 
 header {
-  background-color: rgb(250, 250, 250);
-  padding: 10px;
+  padding: 20px;
+  border-bottom: 2px solid rgb(238, 238, 238);
 }
 
 main {
@@ -40,10 +84,11 @@ main {
 }
 
 .top-row {
-  background-color: lightgray;
+  /* background-color: lightgray; */
   display: flex;
   flex-direction: row;
   padding: 10px;
+  padding-left: 25px;
 }
 
 #seconds {
@@ -57,6 +102,7 @@ main {
   /* background-color: brown; */
   padding: 10px;
   padding-bottom: 1px;
+  padding-right: 20px;
 }
 
 .countdown-block {
@@ -69,19 +115,16 @@ main {
 .time-content {
   /* background-color: brown; */
   display: flex;
+  gap: 20px;
 }
 
 .timebox {
-  background-color: rgb(212, 212, 212);
+  background-color: rgb(245, 245, 245);
   padding: 10px;
   display: flex;
   gap: 20px;
-  margin-right: 20px;
+  margin-right: 10px;
   border-radius: 10px;
-}
-
-.time-segments {
-  /* background-color: chartreuse; */
 }
 
 .actionbox {
@@ -92,18 +135,22 @@ main {
 }
 
 input {
-  /* color: blue; */
+  background-color: rgb(238, 238, 238);
   margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
 }
 
 .add-button, .delete-button {
   color: rgb(39, 39, 39);
   border: none;
   cursor: pointer;
+  transition: transform 0.15s ease;
 }
 
 .add-button:hover, .delete-button:hover {
-  color: red;
+  transform: scale(1.08);
 }
 
 .add-button {
@@ -124,4 +171,44 @@ input {
   font-weight: 600;
   border-radius: 8px;
   padding: 1px;
+}
+
+@property --fill {
+  syntax: "<percentage>";
+  initial-value: 0%;
+  inherits: true;
+}
+@keyframes spin {
+  from {
+    --fill: 0%;
+  }
+  to {
+    --fill: 100%;
+  };
+}
+.clock {
+  height: 50px;
+  width: 50px;
+  background: conic-gradient(green var(--fill), transparent var(--fill));
+  border-radius: 50%;
+  text-align: center;
+  animation-name: spin;
+  animation-duration: 59s;
+  animation-fill-mode: forwards;
+  animation-timing-function: linear;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.clock-inner {
+  height: 45px;
+  width: 45px;
+  border-radius: 50%;
+  border: none;
+  background: rgb(245, 245, 245);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 0.4px;
+  margin-bottom: 0.4px;
 }
