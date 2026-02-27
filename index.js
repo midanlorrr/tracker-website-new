@@ -1,18 +1,23 @@
-const defaultDate = "2026-02-22T00:00";
+const defaultDate = "2026-02-28T00:00";
+const DAY_MS = 24*60*60*1000;
+
+const defaultObject = {
+    title: 'Task 1',
+    dueDate: defaultDate,
+    timeRemainingMS: 0,
+    id: '0',
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+}
 
 let countdownObjectsArray = [
-    {
-        title: 'Task 1',
-        dueDate: defaultDate,
-        id: '0',
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0
-    }
+    defaultObject
 ]
 
 function renderCountdowns() { // renders each countdown object
+    countdownObjectsArray.sort((a, b)=> a.timeRemainingMS - b.timeRemainingMS);
     let countdownGridHTML = ``;
     countdownObjectsArray.forEach((countdownObject)=>{
         const {title, id, dueDate} = countdownObject;
@@ -57,15 +62,7 @@ function loadData() {
     } catch (err) {
         console.log(err);
         countdownObjectsArray = [
-            {
-                title: 'Task 1',
-                dueDate: defaultDate,
-                id: '0',
-                days: 0,
-                hours: 0,
-                minutes: 0,
-                seconds: 0
-            }
+            defaultObject
         ];
         saveData(countdownObjectsArray);
     }
@@ -78,9 +75,10 @@ function extractTime(countdownObject) {
     if (countdownObject.dueDate === 0) {
         return;
     }
-    const {days, hours, minutes, seconds, dueDate} = countdownObject;
+    const {days, hours, minutes, seconds, dueDate, timeRemainingMS} = countdownObject;
     const targetDateMS = new Date(dueDate).getTime();
     const diffMs = targetDateMS - Date.now();
+    countdownObject.timeRemainingMS = diffMs;
     countdownObject.days = Math.floor(diffMs / 1000 / 60 / 60 / 24);
     countdownObject.hours = Math.floor(diffMs / 1000 / 60 / 60) % 24;
     countdownObject.minutes = Math.floor(diffMs / 1000 / 60) % 60;
@@ -91,16 +89,29 @@ function extractTime(countdownObject) {
 function renderTimes() { // renders just the time components
     countdownObjectsArray.forEach((countdownObject)=>{
         extractTime(countdownObject);
-        const {days, hours, minutes, seconds, id} = countdownObject;
+        const {days, hours, minutes, seconds, id, timeRemainingMS} = countdownObject;
         document.getElementById(`days-${id}`).innerHTML = days;
         document.getElementById(`hours-${id}`).innerHTML = hours;
         document.getElementById(`minutes-${id}`).innerHTML = minutes;
+        if (days < 1) updateCountdownBG(document.querySelector(`[data-id="${id}"]`), timeRemainingMS);
     })
     countdownObjectsArray[0]?.seconds != null ? document.getElementById(`seconds`).innerHTML = `${countdownObjectsArray[0].seconds}` : document.getElementById(`seconds`).innerHTML = '';
     const currentMs = (new Date().getSeconds()) * 1000;
     if (currentMs == 0) {
         document.querySelector('.clock').getAnimations()[0].currentTime = 0;
     }
+}
+
+function urgency(timeRemainingMS) {
+    if (timeRemainingMS >= DAY_MS) return 0;
+    if (timeRemainingMS <= 0) return 1;
+    return 1 - (timeRemainingMS / DAY_MS);
+}
+
+function updateCountdownBG(countdownElement, timeRemainingMS) {
+    const u = 238 - (urgency(timeRemainingMS) * 78);
+    // console.log(u);
+    countdownElement.style.backgroundColor = `rgb(255, ${u}, ${u})`;
 }
 
 setInterval(()=>renderTimes(), 1000); // heartbeat, checks every 1 second
@@ -160,6 +171,7 @@ document.addEventListener('click', (e)=>{
         countdownObjectsArray.push({
             title: `Task`, 
             dueDate: 0, 
+            timeRemainingMS: 0,
             id: crypto.randomUUID(),
             days: 0,
             hours: 0,
@@ -186,7 +198,7 @@ document.addEventListener('click', (e)=>{
     if (e.target.matches('[data-action="edit-title"]')) {
         const id = e.target.closest('[data-id]').dataset.id;
         const titleElement = document.getElementById(`title-${id}`);
-        console.log(id);
+        // console.log(id);
         startEditTitle(titleElement);
     }
     //console.log(countdownObjectsArray);
@@ -208,9 +220,9 @@ document.addEventListener('change', (e)=>{
         inputElement.select();
         const parsed = JSON.parse(inputElement.value);
         countdownObjectsArray = parsed;
-        saveData(countdownObjectsArray);
         renderCountdowns();
     }
+    saveData(countdownObjectsArray);
 })
 
 document.addEventListener('focusin', (e) => {

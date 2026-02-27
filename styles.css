@@ -228,7 +228,7 @@ input {
   border-radius: 50%;
   text-align: center;
   animation-name: spin;
-  animation-duration: 59s;
+  animation-duration: 60s;
   animation-fill-mode: forwards;
   animation-timing-function: linear;
   display: flex;
