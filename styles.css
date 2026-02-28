@@ -48,13 +48,14 @@ h1 {
   color: var(--subtleblack);
 }
 
-#assignments, #misc {
+#all, #assignments, #misc {
+  height: 40px;
   padding: 10px;
-  color: inherit;
-  text-decoration: none;
+  background-color: white;
+  border: none;
 }
 
-#assignments:hover, #misc:hover {
+#all:hover, #assignments:hover, #misc:hover {
   background-color: var(--lightergray);
   cursor: pointer;
   color: inherit;

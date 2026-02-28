@@ -3,6 +3,7 @@ const DAY_MS = 24*60*60*1000;
 
 const defaultObject = {
     title: 'Task 1',
+    type: 'task',
     dueDate: defaultDate,
     timeRemainingMS: 0,
     id: '0',
@@ -16,12 +17,14 @@ let countdownObjectsArray = [
     defaultObject
 ]
 
+let renderType = 'all';
+
 function renderCountdowns() { // renders each countdown object
     countdownObjectsArray.sort((a, b)=> a.timeRemainingMS - b.timeRemainingMS);
     let countdownGridHTML = ``;
     countdownObjectsArray.forEach((countdownObject)=>{
-        const {title, id, dueDate} = countdownObject;
-        countdownGridHTML += `
+        const {title, id, dueDate, type} = countdownObject;
+        const HTML = `
         <div class="countdown-block" data-id="${id}">
             <div class="time-content">
                 <div class="timebox">
@@ -42,9 +45,22 @@ function renderCountdowns() { // renders each countdown object
                     <input data-action="time-input" type="datetime-local" value='${dueDate || ''}'>
                     <button class="delete-button" data-action="delete">Delete</button>
                 </div>
+                <div class="extrabox">
+                    <select name="Type" data-action="select-task" value="${type}">
+                        <option value="task" ${type === 'task' ? 'selected' : ''}>Task</option>
+                        <option value="misc" ${type === 'misc' ? 'selected' : ''}>Misc</option>
+                    </select>
+                </div>
             </div>
         </div>
         `;
+        if (renderType === 'task') {
+            if (type === 'task') countdownGridHTML += HTML;
+        } else if (renderType === 'misc') {
+            if (type === 'misc') countdownGridHTML += HTML;
+        } else {
+            countdownGridHTML += HTML;
+        }
     })
     document.getElementById('js-countdown-grid').innerHTML = countdownGridHTML;
     renderTimes();
@@ -88,6 +104,12 @@ function extractTime(countdownObject) {
 
 function renderTimes() { // renders just the time components
     countdownObjectsArray.forEach((countdownObject)=>{
+        if (renderType === 'task') {
+            if (countdownObject.type !== 'task') return;
+        }
+        if (renderType === 'misc') {
+            if (countdownObject.type !== 'misc') return;
+        }
         extractTime(countdownObject);
         const {days, hours, minutes, seconds, id, timeRemainingMS} = countdownObject;
         document.getElementById(`days-${id}`).innerHTML = days;
@@ -110,7 +132,6 @@ function urgency(timeRemainingMS) {
 
 function updateCountdownBG(countdownElement, timeRemainingMS) {
     const u = 238 - (urgency(timeRemainingMS) * 78);
-    // console.log(u);
     countdownElement.style.backgroundColor = `rgb(255, ${u}, ${u})`;
 }
 
@@ -170,6 +191,7 @@ document.addEventListener('click', (e)=>{
     if (e.target.matches('[data-action="add"]')) {
         countdownObjectsArray.push({
             title: `Task`, 
+            type: 'misc',
             dueDate: 0, 
             timeRemainingMS: 0,
             id: crypto.randomUUID(),
@@ -202,6 +224,18 @@ document.addEventListener('click', (e)=>{
         startEditTitle(titleElement);
     }
     //console.log(countdownObjectsArray);
+    if (e.target.matches('#all')) {
+        renderType = 'all';
+        renderCountdowns();
+    }
+    if (e.target.matches('#assignments')) {
+        renderType = 'task';
+        renderCountdowns();
+    }
+    if (e.target.matches('#misc')) {
+        renderType = 'misc';
+        renderCountdowns();
+    }
     saveData(countdownObjectsArray);
 })
 
@@ -221,6 +255,12 @@ document.addEventListener('change', (e)=>{
         const parsed = JSON.parse(inputElement.value);
         countdownObjectsArray = parsed;
         renderCountdowns();
+    }
+    if (e.target.matches('[data-action="select-task"]')) {
+        const typeElement = e.target.closest('[data-action="select-task"]');
+        const id = e.target.closest('[data-id]').dataset.id;
+        const countdownObject = countdownObjectsArray.find(item=>item.id===id);
+        countdownObject.type = typeElement.value;
     }
     saveData(countdownObjectsArray);
 })
