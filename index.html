@@ -1,42 +1,89 @@
-<!DOCTYPE html> <!-- specifies html5 (backwards compatibility [bc]) -->
+<!DOCTYPE html>
 
-<html lang="en"> <!-- same thing -->
+<html lang="en">
 
-  <head> <!-- for unseen parts of the page -->
-    <meta charset="UTF-8"> <!-- specifies modern encoding standard [bc] -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- on mobile, does not treat as desktop page [bc] -->
-    <title>Time Tracker</title> <!-- webpage tab title -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="assets/rebirth.png">
   </head>
 
-  <body> <!-- main part of the page -->
+  <body>
 
     <div class="layout">
 
-      <aside class="sidebar"> <!-- navigation bar of page -->
-        <p class="dashboard">Dashboard</p>
-        <div class="navigation">
-          <button id="all">All</button>
-          <button id="assignments">Assignments</button>
-          <button id="misc">Misc</button>
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img src="assets/rebirth.png" height="26" width="26" alt="Logo">
+          <span class="sidebar-brand">Tracker</span>
         </div>
-        <img class="settings-icon" src="assets/rebirth.png" height="40" width="40">
+        <nav class="navigation">
+          <button id="all" class="nav-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            All Tasks
+          </button>
+          <button id="assignments" class="nav-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Assignments
+          </button>
+          <button id="misc" class="nav-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Misc
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <img class="settings-icon" src="assets/settings-new.png" height="30" width="30" alt="Settings">
+        </div>
       </aside>
 
       <div class="content">
         <header>
-          <h1>Assignment Tracker v2</h1>
-          <div class="clock">
-            <div class="clock-inner"><div id="seconds"></div></div>
+          <div class="header-left">
+            <h1>Assignment Tracker <span class="version-badge">v2</span></h1>
+            <p class="header-subtitle">Track your deadlines and stay on schedule</p>
+          </div>
+          <div class="header-right">
+            <div class="clock">
+              <div class="clock-inner"><div id="seconds"></div></div>
+            </div>
           </div>
         </header>
-        
+
         <main>
           <div class="top-row">
-            <button class="add-button" data-action="add">Add New</button>
-            <button class="export-button" data-action="export">Export</button>
-            <input data-action="data-input" type="text" value="Input data if needed">
+            <div class="top-row-actions">
+              <button class="add-button" data-action="add">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Add New
+              </button>
+              <button class="export-button" data-action="export">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export
+              </button>
+            </div>
+            <input data-action="data-input" type="text" class="data-input" placeholder="Paste JSON to import...">
           </div>
           <div class="countdown-grid" id="js-countdown-grid">
             <!-- countdowns go here -->

@@ -19,23 +19,31 @@ let countdownObjectsArray = [
 
 let renderType = 'all';
 
+function setActiveNav(activeId) {
+    ['all', 'assignments', 'misc'].forEach(id => {
+        document.getElementById(id).classList.toggle('active', id === activeId);
+    });
+}
+
 function renderCountdowns() { // renders each countdown object
     countdownObjectsArray.sort((a, b)=> a.timeRemainingMS - b.timeRemainingMS);
     let countdownGridHTML = ``;
     countdownObjectsArray.forEach((countdownObject)=>{
         const {title, id, dueDate, type} = countdownObject;
-        const HTML = `
+    const HTML = `
         <div class="countdown-block" data-id="${id}">
             <div class="time-content">
                 <div class="timebox">
                     <div class="time-segments">
                         <h3 id="days-${id}">00</h3><p>Days</p>
                     </div>
+                    <span class="time-sep">:</span>
                     <div class="time-segments">
                         <h3 id="hours-${id}">00</h3><p>Hours</p>
                     </div>
+                    <span class="time-sep">:</span>
                     <div class="time-segments">
-                        <h3 id="minutes-${id}">00</h3><p>Minutes</p>
+                        <h3 id="minutes-${id}">00</h3><p>Min</p>
                     </div>
                 </div>
                 <div class="actionbox">
@@ -86,6 +94,7 @@ function loadData() {
 
 loadData();
 renderCountdowns();
+setActiveNav('all');
 
 function extractTime(countdownObject) {
     if (countdownObject.dueDate === 0) {
@@ -226,14 +235,17 @@ document.addEventListener('click', (e)=>{
     //console.log(countdownObjectsArray);
     if (e.target.matches('#all')) {
         renderType = 'all';
+        setActiveNav('all');
         renderCountdowns();
     }
     if (e.target.matches('#assignments')) {
         renderType = 'task';
+        setActiveNav('assignments');
         renderCountdowns();
     }
     if (e.target.matches('#misc')) {
         renderType = 'misc';
+        setActiveNav('misc');
         renderCountdowns();
     }
     saveData(countdownObjectsArray);
