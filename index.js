@@ -4,6 +4,7 @@ const DAY_MS = 24*60*60*1000;
 const defaultObject = {
     title: 'Task 1',
     type: 'task',
+    time: 'reg',
     dueDate: defaultDate,
     timeRemainingMS: 0,
     id: '0',
@@ -18,6 +19,7 @@ let countdownObjectsArray = [
 ]
 
 let renderType = 'all';
+let timeType = 'reg';
 
 function setActiveNav(activeId) {
     ['all', 'assignments', 'misc'].forEach(id => {
@@ -29,15 +31,16 @@ function renderCountdowns() { // renders each countdown object
     countdownObjectsArray.sort((a, b)=> a.timeRemainingMS - b.timeRemainingMS);
     let countdownGridHTML = ``;
     countdownObjectsArray.forEach((countdownObject)=>{
-        const {title, id, dueDate, type} = countdownObject;
-    const HTML = `
+        const {title, id, dueDate, type, time} = countdownObject;
+        const HTML = `
         <div class="countdown-block" data-id="${id}">
             <div class="time-content">
                 <div class="timebox">
-                    <div class="time-segments">
+                    ${time === 'reg' ?
+                    `<div class="time-segments">
                         <h3 id="days-${id}">00</h3><p>Days</p>
                     </div>
-                    <span class="time-sep">:</span>
+                    <span class="time-sep">:</span>` : ''}
                     <div class="time-segments">
                         <h3 id="hours-${id}">00</h3><p>Hours</p>
                     </div>
@@ -54,6 +57,10 @@ function renderCountdowns() { // renders each countdown object
                     <button class="delete-button" data-action="delete">Delete</button>
                 </div>
                 <div class="extrabox">
+                    <label class="switch">
+                        <input type="checkbox" data-action="toggle-time" ${time !== 'reg' ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
                     <select name="Type" data-action="select-task" value="${type}">
                         <option value="task" ${type === 'task' ? 'selected' : ''}>Task</option>
                         <option value="misc" ${type === 'misc' ? 'selected' : ''}>Misc</option>
@@ -100,14 +107,16 @@ function extractTime(countdownObject) {
     if (countdownObject.dueDate === 0) {
         return;
     }
-    const {days, hours, minutes, seconds, dueDate, timeRemainingMS} = countdownObject;
+    const {days, hours, minutes, seconds, dueDate, timeRemainingMS, time} = countdownObject;
     const targetDateMS = new Date(dueDate).getTime();
     const diffMs = targetDateMS - Date.now();
     countdownObject.timeRemainingMS = diffMs;
-    countdownObject.days = Math.floor(diffMs / 1000 / 60 / 60 / 24);
-    countdownObject.hours = Math.floor(diffMs / 1000 / 60 / 60) % 24;
-    countdownObject.minutes = Math.floor(diffMs / 1000 / 60) % 60;
-    countdownObject.seconds = Math.floor(diffMs / 1000) % 60;
+    countdownObject.days = diffMs > 0 ? Math.floor(diffMs / 1000 / 60 / 60 / 24) : Math.ceil(diffMs / 1000 / 60 / 60 / 24);
+    countdownObject.hours = time === 'reg' ? (diffMs > 0 ? Math.floor(diffMs / 1000 / 60 / 60) % 24 : Math.ceil(diffMs / 1000 / 60 / 60) % 24) : (
+        diffMs > 0 ? Math.floor(diffMs / 1000 / 60 / 60) : Math.ceil(diffMs / 1000 / 60 / 60)
+    );
+    countdownObject.minutes = diffMs > 0 ? Math.floor(diffMs / 1000 / 60) % 60 : Math.ceil(diffMs / 1000 / 60) % 60;
+    countdownObject.seconds = diffMs > 0 ? Math.floor(diffMs / 1000) % 60 : Math.ceil(diffMs / 1000) % 60;
     //console.log(`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`);
 }
 
@@ -120,8 +129,8 @@ function renderTimes() { // renders just the time components
             if (countdownObject.type !== 'misc') return;
         }
         extractTime(countdownObject);
-        const {days, hours, minutes, seconds, id, timeRemainingMS} = countdownObject;
-        document.getElementById(`days-${id}`).innerHTML = days;
+        const {days, hours, minutes, seconds, id, timeRemainingMS, time} = countdownObject;
+        time === 'reg' ? document.getElementById(`days-${id}`).innerHTML = days : '';
         document.getElementById(`hours-${id}`).innerHTML = hours;
         document.getElementById(`minutes-${id}`).innerHTML = minutes;
         if (days < 1) updateCountdownBG(document.querySelector(`[data-id="${id}"]`), timeRemainingMS);
@@ -199,15 +208,8 @@ document.addEventListener('click', (e)=>{
     }
     if (e.target.matches('[data-action="add"]')) {
         countdownObjectsArray.push({
-            title: `Task`, 
-            type: 'misc',
-            dueDate: 0, 
-            timeRemainingMS: 0,
-            id: crypto.randomUUID(),
-            days: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0
+            ...defaultObject,
+            id: crypto.randomUUID()
         });
         renderCountdowns();
     }
@@ -232,7 +234,6 @@ document.addEventListener('click', (e)=>{
         // console.log(id);
         startEditTitle(titleElement);
     }
-    //console.log(countdownObjectsArray);
     if (e.target.matches('#all')) {
         renderType = 'all';
         setActiveNav('all');
@@ -273,6 +274,17 @@ document.addEventListener('change', (e)=>{
         const id = e.target.closest('[data-id]').dataset.id;
         const countdownObject = countdownObjectsArray.find(item=>item.id===id);
         countdownObject.type = typeElement.value;
+    }
+    if (e.target.matches('[data-action="toggle-time"]')) {
+        const toggle = e.target.closest('[data-action="toggle-time"]');
+        const id = e.target.closest('[data-id]').dataset.id;
+        const countdownObject = countdownObjectsArray.find(item=>item.id===id);
+        if (toggle.checked) {
+            countdownObject.time = 'hours';
+        } else {
+            countdownObject.time = 'reg';
+        }
+        renderCountdowns();
     }
     saveData(countdownObjectsArray);
 })
