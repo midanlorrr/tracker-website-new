@@ -1,5 +1,6 @@
-const defaultDate = "2026-02-28T00:00";
-const DAY_MS = 24*60*60*1000;
+import { renderCountdowns, renderTimes } from "./render.js";
+
+const defaultDate = "2026-03-28T00:00";
 
 const defaultObject = {
     title: 'Task 1',
@@ -19,69 +20,11 @@ let countdownObjectsArray = [
 ]
 
 let renderType = 'all';
-let timeType = 'reg';
 
 function setActiveNav(activeId) {
     ['all', 'assignments', 'misc'].forEach(id => {
         document.getElementById(id).classList.toggle('active', id === activeId);
     });
-}
-
-function renderCountdowns() { // renders each countdown object
-    countdownObjectsArray.sort((a, b)=> a.timeRemainingMS - b.timeRemainingMS);
-    let countdownGridHTML = ``;
-    countdownObjectsArray.forEach((countdownObject)=>{
-        const {title, id, dueDate, type, time} = countdownObject;
-        const HTML = `
-        <div class="countdown-block" data-id="${id}">
-            <div class="time-content">
-                <div class="timebox">
-                    ${time === 'reg' ?
-                    `<div class="time-segments">
-                        <h3 id="days-${id}">00</h3><p>Days</p>
-                    </div>
-                    <span class="time-sep">:</span>` : ''}
-                    <div class="time-segments">
-                        <h3 id="hours-${id}">00</h3><p>Hours</p>
-                    </div>
-                    <span class="time-sep">:</span>
-                    <div class="time-segments">
-                        <h3 id="minutes-${id}">00</h3><p>Min</p>
-                    </div>
-                </div>
-                <div class="actionbox">
-                    <div class="title">
-                        <span id="title-${id}" data-action="edit-title">${title}</span>
-                    </div>
-                    <input data-action="time-input" type="datetime-local" value='${dueDate || ''}'>
-                    <button class="delete-button" data-action="delete">Delete</button>
-                </div>
-                <div class="extrabox">
-                    <label class="switch">
-                        <input type="checkbox" data-action="toggle-time" ${time !== 'reg' ? 'checked' : ''}>
-                        <span class="slider"></span>
-                    </label>
-                    <select name="Type" data-action="select-task" value="${type}">
-                        <option value="task" ${type === 'task' ? 'selected' : ''}>Task</option>
-                        <option value="misc" ${type === 'misc' ? 'selected' : ''}>Misc</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        `;
-        if (renderType === 'task') {
-            if (type === 'task') countdownGridHTML += HTML;
-        } else if (renderType === 'misc') {
-            if (type === 'misc') countdownGridHTML += HTML;
-        } else {
-            countdownGridHTML += HTML;
-        }
-    })
-    document.getElementById('js-countdown-grid').innerHTML = countdownGridHTML;
-    renderTimes();
-    const currentMs = (new Date().getSeconds()) * 1000;
-    document.querySelector('.clock').getAnimations()[0].currentTime = currentMs;
-    console.log('renderCountdowns called');
 }
 
 function loadData() {
@@ -99,61 +42,15 @@ function loadData() {
     }
 }
 
+function saveData(arr) {
+    localStorage.setItem('countdownArray', JSON.stringify(arr));
+}
+
 loadData();
-renderCountdowns();
-setActiveNav('all');
+renderCountdowns(countdownObjectsArray, renderType);
+setActiveNav(renderType);
 
-function extractTime(countdownObject) {
-    if (countdownObject.dueDate === 0) {
-        return;
-    }
-    const {days, hours, minutes, seconds, dueDate, timeRemainingMS, time} = countdownObject;
-    const targetDateMS = new Date(dueDate).getTime();
-    const diffMs = targetDateMS - Date.now();
-    countdownObject.timeRemainingMS = diffMs;
-    countdownObject.days = diffMs > 0 ? Math.floor(diffMs / 1000 / 60 / 60 / 24) : Math.ceil(diffMs / 1000 / 60 / 60 / 24);
-    countdownObject.hours = time === 'reg' ? (diffMs > 0 ? Math.floor(diffMs / 1000 / 60 / 60) % 24 : Math.ceil(diffMs / 1000 / 60 / 60) % 24) : (
-        diffMs > 0 ? Math.floor(diffMs / 1000 / 60 / 60) : Math.ceil(diffMs / 1000 / 60 / 60)
-    );
-    countdownObject.minutes = diffMs > 0 ? Math.floor(diffMs / 1000 / 60) % 60 : Math.ceil(diffMs / 1000 / 60) % 60;
-    countdownObject.seconds = diffMs > 0 ? Math.floor(diffMs / 1000) % 60 : Math.ceil(diffMs / 1000) % 60;
-    //console.log(`${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`);
-}
-
-function renderTimes() { // renders just the time components
-    countdownObjectsArray.forEach((countdownObject)=>{
-        if (renderType === 'task') {
-            if (countdownObject.type !== 'task') return;
-        }
-        if (renderType === 'misc') {
-            if (countdownObject.type !== 'misc') return;
-        }
-        extractTime(countdownObject);
-        const {days, hours, minutes, seconds, id, timeRemainingMS, time} = countdownObject;
-        time === 'reg' ? document.getElementById(`days-${id}`).innerHTML = days : '';
-        document.getElementById(`hours-${id}`).innerHTML = hours;
-        document.getElementById(`minutes-${id}`).innerHTML = minutes;
-        if (days < 1) updateCountdownBG(document.querySelector(`[data-id="${id}"]`), timeRemainingMS);
-    })
-    countdownObjectsArray[0]?.seconds != null ? document.getElementById(`seconds`).innerHTML = `${countdownObjectsArray[0].seconds}` : document.getElementById(`seconds`).innerHTML = '';
-    const currentMs = (new Date().getSeconds()) * 1000;
-    if (currentMs == 0) {
-        document.querySelector('.clock').getAnimations()[0].currentTime = 0;
-    }
-}
-
-function urgency(timeRemainingMS) {
-    if (timeRemainingMS >= DAY_MS) return 0;
-    if (timeRemainingMS <= 0) return 1;
-    return 1 - (timeRemainingMS / DAY_MS);
-}
-
-function updateCountdownBG(countdownElement, timeRemainingMS) {
-    const u = 238 - (urgency(timeRemainingMS) * 78);
-    countdownElement.style.backgroundColor = `rgb(255, ${u}, ${u})`;
-}
-
-setInterval(()=>renderTimes(), 1000); // heartbeat, checks every 1 second
+setInterval(()=>renderTimes(countdownObjectsArray, renderType), 1000); // heartbeat, checks every 1 second
 
 function startEditTitle(titleElement) {
     const currentText = titleElement.textContent;
@@ -196,22 +93,33 @@ function cancelEdit(tempInput, oldText) {
     finishEdit(tempInput, oldText, id);
 }
 
-function saveData(arr) {
-    localStorage.setItem('countdownArray', JSON.stringify(arr));
-}
-
-document.addEventListener('click', (e)=>{
+document.addEventListener('click', async (e)=>{
     if (e.target.matches('[data-action="delete"]')) {
         const deleteId = e.target.closest('[data-id]').dataset.id;
         countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== deleteId);
-        renderCountdowns();
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     if (e.target.matches('[data-action="add"]')) {
         countdownObjectsArray.push({
             ...defaultObject,
             id: crypto.randomUUID()
         });
-        renderCountdowns();
+
+        try {
+            const response = await fetch("http://localhost:3000/button-click", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+            const data = await response.json();
+            console.log("Server responded:", data);
+        } catch (error) {
+            console.error(error);
+        }
+
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     // Temp fix ------------------------------------
     if (e.target.matches('[data-action="export"]')) {
@@ -237,17 +145,17 @@ document.addEventListener('click', (e)=>{
     if (e.target.matches('#all')) {
         renderType = 'all';
         setActiveNav('all');
-        renderCountdowns();
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     if (e.target.matches('#assignments')) {
         renderType = 'task';
         setActiveNav('assignments');
-        renderCountdowns();
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     if (e.target.matches('#misc')) {
         renderType = 'misc';
         setActiveNav('misc');
-        renderCountdowns();
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     saveData(countdownObjectsArray);
 })
@@ -260,14 +168,14 @@ document.addEventListener('change', (e)=>{
 
         const countdownObject = countdownObjectsArray.find(item=>item.id===id);
         countdownObject.dueDate = timeElement.value;
-        renderTimes();
+        renderTimes(countdownObjectsArray, renderType);
     }
     if (e.target.matches('[data-action="data-input"]')) {
         const inputElement = e.target.closest('[data-action="data-input"]');
         inputElement.select();
         const parsed = JSON.parse(inputElement.value);
         countdownObjectsArray = parsed;
-        renderCountdowns();
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     if (e.target.matches('[data-action="select-task"]')) {
         const typeElement = e.target.closest('[data-action="select-task"]');
@@ -284,7 +192,7 @@ document.addEventListener('change', (e)=>{
         } else {
             countdownObject.time = 'reg';
         }
-        renderCountdowns();
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     saveData(countdownObjectsArray);
 })
