@@ -93,55 +93,7 @@ function cancelEdit(tempInput, oldText) {
     finishEdit(tempInput, oldText, id);
 }
 
-document.addEventListener('click', async (e)=>{
-    if (e.target.matches('[data-action="delete"]')) {
-        const deleteId = e.target.closest('[data-id]').dataset.id;
-        countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== deleteId);
-        renderCountdowns(countdownObjectsArray, renderType);
-    }
-    if (e.target.matches('[data-action="add"]')) {
-        countdownObjectsArray.push({
-            ...defaultObject,
-            id: crypto.randomUUID()
-        });
-
-        try {
-            const response = await fetch("http://localhost:3000/button-click", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({})
-            })
-            const data = await response.json();
-            console.log("Server responded:", data);
-        } catch (error) {
-            console.error(error);
-        }
-
-        renderCountdowns(countdownObjectsArray, renderType);
-    }
-    // Temp fix ------------------------------------
-    if (e.target.matches('[data-action="export"]')) {
-        const exportBoxElement = document.getElementById('export-box');
-        const text = JSON.stringify(countdownObjectsArray, null, 2);
-        //exportBoxElement.style.display = 'block';
-        //exportBoxElement.innerHTML = text;
-
-        try {
-            navigator.clipboard.writeText(text);
-            alert('Copied to clipboard as a string.');
-        } catch {
-            alert('Shown below. Long-press the text box to copy.');
-        }
-    }
-    // Temp fix ------------------------------------
-    if (e.target.matches('[data-action="edit-title"]')) {
-        const id = e.target.closest('[data-id]').dataset.id;
-        const titleElement = document.getElementById(`title-${id}`);
-        // console.log(id);
-        startEditTitle(titleElement);
-    }
+document.addEventListener('click', (e)=>{
     if (e.target.matches('#all')) {
         renderType = 'all';
         setActiveNav('all');
@@ -157,6 +109,58 @@ document.addEventListener('click', async (e)=>{
         setActiveNav('misc');
         renderCountdowns(countdownObjectsArray, renderType);
     }
+
+    const action = e.target.dataset.action || e.target.closest('[data-action]')?.dataset.action;
+    if (!action) return;
+    const container = e.target.closest('[data-id]');
+    const id = container?.dataset.id;
+
+    if (action === "delete") {
+        countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== id);
+        renderCountdowns(countdownObjectsArray, renderType);
+    }
+    if (action === "add") {
+        countdownObjectsArray.push({
+            ...defaultObject,
+            id: crypto.randomUUID()
+        });
+
+        // try {
+        //     const response = await fetch("http://localhost:3000/button-click", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json"
+        //         },
+        //         body: JSON.stringify({})
+        //     })
+        //     const data = await response.json();
+        //     console.log("Server responded:", data);
+        // } catch (error) {
+        //     console.error(error);
+        // }
+
+        renderCountdowns(countdownObjectsArray, renderType);
+    }
+    // Temp fix ------------------------------------
+    if (action === "export") {
+        const exportBoxElement = document.getElementById('export-box');
+        const text = JSON.stringify(countdownObjectsArray, null, 2);
+        //exportBoxElement.style.display = 'block';
+        //exportBoxElement.innerHTML = text;
+
+        try {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard as a string.');
+        } catch {
+            alert('Shown below. Long-press the text box to copy.');
+        }
+    }
+    // Temp fix ------------------------------------
+    if (action === "edit-title") {
+        const titleElement = document.getElementById(`title-${id}`);
+        startEditTitle(titleElement);
+    }
+    
     saveData(countdownObjectsArray);
 })
 
