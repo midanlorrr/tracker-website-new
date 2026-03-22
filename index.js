@@ -7,16 +7,11 @@ import { testGet, testPost } from "./api.js";
 const defaultDate = "2026-03-28T00:00";
 
 const defaultObject = {
-    title: 'Task 1',
-    type: 'task',
-    time: 'reg',
-    dueDate: defaultDate,
-    timeRemainingMS: 0,
     id: '0',
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
+    title: 'Task 1',
+    due_date: defaultDate,
+    type: 'task',
+    mode: 'reg',
 }
 
 let countdownObjectsArray = [
@@ -175,7 +170,7 @@ document.addEventListener('change', (e)=>{
         if (!timeElement) return;
 
         const countdownObject = countdownObjectsArray.find(item=>item.id===id);
-        countdownObject.dueDate = timeElement.value;
+        countdownObject.due_date = timeElement.value;
         renderTimes(countdownObjectsArray, renderType);
     }
     if (e.target.matches('[data-action="data-input"]')) {
@@ -191,14 +186,14 @@ document.addEventListener('change', (e)=>{
         const countdownObject = countdownObjectsArray.find(item=>item.id===id);
         countdownObject.type = typeElement.value;
     }
-    if (e.target.matches('[data-action="toggle-time"]')) {
-        const toggle = e.target.closest('[data-action="toggle-time"]');
+    if (e.target.matches('[data-action="toggle-mode"]')) {
+        const toggle = e.target.closest('[data-action="toggle-mode"]');
         const id = e.target.closest('[data-id]').dataset.id;
         const countdownObject = countdownObjectsArray.find(item=>item.id===id);
         if (toggle.checked) {
-            countdownObject.time = 'hours';
+            countdownObject.mode = 'hours';
         } else {
-            countdownObject.time = 'reg';
+            countdownObject.mode = 'reg';
         }
         renderCountdowns(countdownObjectsArray, renderType);
     }

@@ -4,8 +4,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabase = createClient(getURL(), getKEY());
 
 export async function testGet() {
-    const { data, error } = await supabase.from('countdowns').select('*')
-    console.log(data)
+    const { data, error } = await supabase.from('countdowns').select('title').eq('id', '93d7ddc2-2bae-4321-9535-acfc0899b596').single();
+    console.log(data?.title, error)
 };
 
 export async function testPost() {
