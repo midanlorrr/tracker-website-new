@@ -5,8 +5,8 @@ const defaultDate = "2026-03-28T00:00";
 // saveData('Test', new Date(defaultDate).toISOString(), 'task', 'reg');
 
 const defaultObject = {
-    id: null,
-    title: 'Task 1',
+    // id: null,
+    title: 'Default',
     due_date: new Date(defaultDate).toISOString(),
     type: 'task',
     mode: 'reg',
@@ -28,7 +28,7 @@ async function init() {
         const data = await loadData();
         countdownObjectsArray = data;
     } catch (err) {
-        console.error(err);
+        console.error('hi', err);
     }
     console.log(countdownObjectsArray);
     setActiveNav(renderType);
