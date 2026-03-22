@@ -1,5 +1,5 @@
 export function renderCountdowns(countdownObjectsArray, renderType) { // renders each countdown object
-    countdownObjectsArray.sort((a, b)=> a.timeRemainingMS - b.timeRemainingMS);
+    countdownObjectsArray.sort((a, b)=> new Date(a.due_date) - new Date(b.due_date));
     let countdownGridHTML = ``;
     countdownObjectsArray.forEach((countdownObject)=>{
         const {title, id, due_date, type, mode} = countdownObject;
@@ -24,7 +24,7 @@ export function renderCountdowns(countdownObjectsArray, renderType) { // renders
                     <div class="title">
                         <span id="title-${id}" data-action="edit-title">${title}</span>
                     </div>
-                    <input data-action="time-input" type="datetime-local" value='${due_date || ''}'>
+                    <input data-action="time-input" type="datetime-local" value='${utcToDatetimeLocal(due_date) || ''}'>
                     <button class="delete-button" data-action="delete">Delete</button>
                 </div>
                 <div class="extrabox">
@@ -59,17 +59,23 @@ export function renderCountdowns(countdownObjectsArray, renderType) { // renders
     console.log('renderCountdowns called');
 }
 
-// const DAY_MS = 24*60*60*1000;
-// function urgency(timeRemainingMS) {
-//     if (timeRemainingMS >= DAY_MS) return 0;
-//     if (timeRemainingMS <= 0) return 1;
-//     return 1 - (timeRemainingMS / DAY_MS);
-// }
+const DAY_MS = 24*60*60*1000;
+function urgency(timeRemainingMS) {
+    if (timeRemainingMS >= DAY_MS) return 0;
+    if (timeRemainingMS <= 0) return 1;
+    return 1 - (timeRemainingMS / DAY_MS);
+}
 
-// function updateCountdownBG(countdownElement, timeRemainingMS) {
-//     const u = 238 - (urgency(timeRemainingMS) * 78);
-//     countdownElement.style.backgroundColor = `rgb(255, ${u}, ${u})`;
-// }
+function updateCountdownBG(countdownElement, timeRemainingMS) {
+    const u = 238 - (urgency(timeRemainingMS) * 78);
+    countdownElement.style.backgroundColor = `rgb(255, ${u}, ${u})`;
+}
+
+function utcToDatetimeLocal(utcString) {
+    const d = new Date(utcString);
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+}
 
 export function renderTimes(countdownObjectsArray, renderType) { // renders just the time components
     countdownObjectsArray.forEach((countdownObject)=>{
@@ -90,7 +96,7 @@ export function renderTimes(countdownObjectsArray, renderType) { // renders just
         mode === 'reg' ? document.getElementById(`days-${id}`).innerHTML = days : '';
         document.getElementById(`hours-${id}`).innerHTML = hours;
         document.getElementById(`minutes-${id}`).innerHTML = minutes;
-        // if (days < 1) updateCountdownBG(document.querySelector(`[data-id="${id}"]`), timeRemainingMS);
+        if (days < 1) updateCountdownBG(document.querySelector(`[data-id="${id}"]`), diffMs);
     })
     document.getElementById(`seconds`).innerHTML = Math.floor((new Date("2027-03-13T00:00").getTime() - Date.now()) / 1000) % 60;
     const currentMs = (new Date().getSeconds()) * 1000;

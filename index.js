@@ -1,15 +1,13 @@
 import { renderCountdowns, renderTimes } from "./render.js";
-import { testGet, testPost } from "./api.js";
-
-// testPost();
-// testGet();
+import { loadData, saveCountdownToDB, updateCountdownToDB, deleteCountdownFromDB } from "./api.js";
 
 const defaultDate = "2026-03-28T00:00";
+// saveData('Test', new Date(defaultDate).toISOString(), 'task', 'reg');
 
 const defaultObject = {
-    id: '0',
+    id: null,
     title: 'Task 1',
-    due_date: defaultDate,
+    due_date: new Date(defaultDate).toISOString(),
     type: 'task',
     mode: 'reg',
 }
@@ -17,7 +15,6 @@ const defaultObject = {
 let countdownObjectsArray = [
     defaultObject
 ]
-
 let renderType = 'all';
 
 function setActiveNav(activeId) {
@@ -26,31 +23,21 @@ function setActiveNav(activeId) {
     });
 }
 
-function loadData() {
+async function init() {
     try {
-        const saved = JSON.parse(localStorage.getItem('countdownArray'));
-        console.log(saved);
-        if (Array.isArray(saved)) { countdownObjectsArray = saved; } else { throw ('ERROR: Invalid data format'); };
-
+        const data = await loadData();
+        countdownObjectsArray = data;
     } catch (err) {
-        console.log(err);
-        countdownObjectsArray = [
-            defaultObject
-        ];
-        saveData(countdownObjectsArray);
+        console.error(err);
     }
+    console.log(countdownObjectsArray);
+    setActiveNav(renderType);
+    renderCountdowns(countdownObjectsArray, renderType);
+    setInterval(()=>renderTimes(countdownObjectsArray, renderType), 1000); // heartbeat, checks every 1 second
 }
+init();
 
-function saveData(arr) {
-    localStorage.setItem('countdownArray', JSON.stringify(arr));
-}
-
-loadData();
-renderCountdowns(countdownObjectsArray, renderType);
-setActiveNav(renderType);
-
-setInterval(()=>renderTimes(countdownObjectsArray, renderType), 1000); // heartbeat, checks every 1 second
-
+let hasRun = false;
 function startEditTitle(titleElement) {
     const currentText = titleElement.textContent;
     const tempInput = document.createElement('input');
@@ -60,16 +47,18 @@ function startEditTitle(titleElement) {
 
     titleElement.replaceWith(tempInput);
     tempInput.focus();
-    //tempInput.select();
+    tempInput.select();
 
     tempInput.addEventListener('keydown', (e)=>{
-        //if (e.key === 'Enter') finishEdit(tempInput, currentText);
+        if (e.key === 'Enter') finishEdit(tempInput, currentText);
         if (e.key === 'Escape') cancelEdit(tempInput, currentText);
     });
     tempInput.addEventListener('blur', () => finishEdit(tempInput, currentText));
 }
 
 function finishEdit(tempInput, fallbackText) {
+    if (hasRun) return;
+    hasRun = true;
     if (!tempInput.isConnected) return;
     const newText = tempInput.value.trim() || 'unnamed';
 
@@ -85,6 +74,7 @@ function finishEdit(tempInput, fallbackText) {
 
     const countdownObject = countdownObjectsArray.find(item=>item.id===id);
     countdownObject.title = newText;
+    updateCountdown(id, {title: countdownObject.title});
 }
 
 function cancelEdit(tempInput, oldText) {
@@ -92,10 +82,10 @@ function cancelEdit(tempInput, oldText) {
     finishEdit(tempInput, oldText, id);
 }
 
-document.addEventListener('click', (e)=>{
+function selectMode(e) {
     if (e.target.matches('#all')) {
         renderType = 'all';
-        setActiveNav('all');
+        setActiveNav(renderType);
         renderCountdowns(countdownObjectsArray, renderType);
     }
     if (e.target.matches('#assignments')) {
@@ -105,9 +95,30 @@ document.addEventListener('click', (e)=>{
     }
     if (e.target.matches('#misc')) {
         renderType = 'misc';
-        setActiveNav('misc');
+        setActiveNav(renderType);
         renderCountdowns(countdownObjectsArray, renderType);
     }
+}
+
+async function createCountdown() {
+    const countdownObject = await saveCountdownToDB(defaultObject);
+    countdownObjectsArray.push(countdownObject);
+    renderCountdowns(countdownObjectsArray, renderType);
+}
+
+async function removeCountdown(id) {
+    await deleteCountdownFromDB(id);
+    countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== id);
+    renderCountdowns(countdownObjectsArray, renderType);
+}
+
+async function updateCountdown(id, countdownObject) {
+    await updateCountdownToDB(id, countdownObject);
+    renderCountdowns(countdownObjectsArray, renderType);
+}
+
+document.addEventListener('click', (e)=>{
+    selectMode(e);
 
     const action = e.target.dataset.action || e.target.closest('[data-action]')?.dataset.action;
     if (!action) return;
@@ -115,31 +126,17 @@ document.addEventListener('click', (e)=>{
     const id = container?.dataset.id;
 
     if (action === "delete") {
-        countdownObjectsArray = countdownObjectsArray.filter(item => item.id !== id);
-        renderCountdowns(countdownObjectsArray, renderType);
+        removeCountdown(id);
     }
     if (action === "add") {
-        countdownObjectsArray.push({
-            ...defaultObject,
-            id: crypto.randomUUID()
-        });
-
-        // try {
-        //     const response = await fetch("http://localhost:3000/button-click", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json"
-        //         },
-        //         body: JSON.stringify({})
-        //     })
-        //     const data = await response.json();
-        //     console.log("Server responded:", data);
-        // } catch (error) {
-        //     console.error(error);
-        // }
-
-        renderCountdowns(countdownObjectsArray, renderType);
+        createCountdown();
     }
+    if (action === "edit-title") {
+        const titleElement = document.getElementById(`title-${id}`);
+        startEditTitle(titleElement);
+        hasRun = false;
+    }
+
     // Temp fix ------------------------------------
     if (action === "export") {
         const exportBoxElement = document.getElementById('export-box');
@@ -154,13 +151,6 @@ document.addEventListener('click', (e)=>{
             alert('Shown below. Long-press the text box to copy.');
         }
     }
-    // Temp fix ------------------------------------
-    if (action === "edit-title") {
-        const titleElement = document.getElementById(`title-${id}`);
-        startEditTitle(titleElement);
-    }
-    
-    saveData(countdownObjectsArray);
 })
 
 document.addEventListener('change', (e)=>{
@@ -171,6 +161,7 @@ document.addEventListener('change', (e)=>{
 
         const countdownObject = countdownObjectsArray.find(item=>item.id===id);
         countdownObject.due_date = timeElement.value;
+        updateCountdown(id, {due_date: new Date(countdownObject.due_date).toISOString()});
         renderTimes(countdownObjectsArray, renderType);
     }
     if (e.target.matches('[data-action="data-input"]')) {
@@ -195,9 +186,9 @@ document.addEventListener('change', (e)=>{
         } else {
             countdownObject.mode = 'reg';
         }
+        updateCountdown(id, {mode: countdownObject.mode})
         renderCountdowns(countdownObjectsArray, renderType);
     }
-    saveData(countdownObjectsArray);
 })
 
 document.addEventListener('focusin', (e) => {
