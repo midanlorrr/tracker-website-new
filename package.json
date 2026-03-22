@@ -16,5 +16,8 @@
     "url": "https://github.com/midanlorrr/tracker-website-new/issues"
   },
   "homepage": "https://github.com/midanlorrr/tracker-website-new#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.3"
+  }
 }

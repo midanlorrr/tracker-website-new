@@ -3,6 +3,7 @@ node_modules/
 
 # Environment variables
 .env
+config.js
 
 # OS files
 .DS_Store

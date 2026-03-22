@@ -1,4 +1,8 @@
 import { renderCountdowns, renderTimes } from "./render.js";
+import { testGet, testPost } from "./api.js";
+
+// testPost();
+// testGet();
 
 const defaultDate = "2026-03-28T00:00";
 
