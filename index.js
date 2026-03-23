@@ -190,6 +190,8 @@ document.addEventListener('change', (e)=>{
         const id = e.target.closest('[data-id]').dataset.id;
         const countdownObject = countdownObjectsArray.find(item=>item.id===id);
         countdownObject.type = typeElement.value;
+        updateCountdown(id, {type: countdownObject.type})
+        renderCountdowns(countdownObjectsArray, renderType);
     }
     if (e.target.matches('[data-action="toggle-mode"]')) {
         const toggle = e.target.closest('[data-action="toggle-mode"]');
