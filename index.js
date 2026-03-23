@@ -117,6 +117,20 @@ async function updateCountdown(id, countdownObject) {
     renderCountdowns(countdownObjectsArray, renderType);
 }
 
+const hamburger = document.getElementById('hamburger')
+const sidebar = document.querySelector('.sidebar')
+const overlay = document.getElementById('sidebar-overlay')
+
+hamburger.addEventListener('click', () => {
+  sidebar.classList.toggle('active')
+  overlay.classList.toggle('active')
+})
+
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('active')
+  overlay.classList.remove('active')
+})
+
 document.addEventListener('click', (e)=>{
     selectMode(e);
 

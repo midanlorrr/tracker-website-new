@@ -14,7 +14,7 @@
   </head>
 
   <body>
-
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <div class="layout">
 
       <aside class="sidebar">
@@ -54,6 +54,11 @@
 
       <div class="content">
         <header>
+          <button class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
           <div class="header-left">
             <h1>Assignment Tracker <span class="version-badge">v2</span></h1>
             <p class="header-subtitle">Track your deadlines and stay on schedule</p>
@@ -74,6 +79,7 @@
                 </svg>
                 Add New
               </button>
+              <!--
               <button class="export-button" data-action="export">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -82,8 +88,11 @@
                 </svg>
                 Export
               </button>
+              -->
             </div>
+            <!--
             <input data-action="data-input" type="text" class="data-input" placeholder="Paste JSON to import...">
+            -->
           </div>
           <div class="countdown-grid" id="js-countdown-grid">
             <!-- countdowns go here -->
